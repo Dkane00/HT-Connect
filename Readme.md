@@ -18,7 +18,22 @@ simply copy the repo to you computer and run the script
 get clone https://github.com/Dkane00/HT-Connect.git
 ```
 
-### Run the script
+### Easy Button
+
+#### Cd into the repo
+``` shell
+cd HT-Connect
+```
+#### Make sure that the install script and the HT-Connect script are both executable
+``` shell
+sudo chmod +x install-ht-connect.sh HT-Connect.sh
+```
+#### Run the install Script
+- This script will allow you to run the HT-Connect.sh script by just typing the simple command ht-connect from the command line
+``` shell
+./install-ht-connect.sh
+```
+### Running the HT-Connect script without installing the simple command
 
 #### Cd into the repo
 ``` shell
