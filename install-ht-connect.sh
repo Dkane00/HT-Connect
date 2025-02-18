@@ -4,7 +4,7 @@
 #### using the commad: ht-connect
 
 # Define the path to the script
-SCRIPT_PATH="$HOME/HT-Connect/Bluetooth_Menu.sh"
+SCRIPT_PATH="$HOME/HT-Connect/HT-Connect.sh"
 COMMAND_NAME="ht-connect"
 LINK_PATH="/usr/local/bin/$COMMAND_NAME"
 
