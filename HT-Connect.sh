@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# color text for the menus
+# Color text for the menus
 YELLOW='\e[33m'
 GREEN='\e[32m'
 NC='\e[0m'
@@ -62,9 +62,23 @@ if [ -n "$bluetooth_status" ]; then
     esac
 fi
 
-# Run hcitool scan and store the results in a variable
+# Start scanning for Bluetooth devices
 echo -e "${YELLOW}Scanning for Bluetooth devices...${NC}"
-scan_results=$(hcitool scan)
+bluetoothctl scan on &
+scan_pid=$!  # Store the scan process ID
+
+# Allow scanning to run for a few seconds
+sleep 10  
+
+# Attempt to stop scanning
+echo -e "${YELLOW}Stopping Bluetooth scan...${NC}"
+if ! bluetoothctl scan off; then
+    echo -e "${YELLOW}Scan off command failed. Trying an alternative method...${NC}"
+    sudo pkill -f "bluetoothctl scan on"
+fi
+
+# Get list of available devices
+scan_results=$(bluetoothctl devices)
 
 # Check if any devices were found
 if [ -z "$scan_results" ]; then
@@ -75,20 +89,63 @@ fi
 # Display the results in a numbered menu
 echo -e "${YELLOW}Discovered Bluetooth devices:${NC}"
 echo -e "${YELLOW}==============================${NC}"
-# Use awk to format the output with numbers in green, skipping the header line
-echo "$scan_results" | awk -v green="$GREEN" -v nc="$NC" 'NR>1 {print green NR-1 ". " $3 nc}'
+index=1
+declare -A device_map
+
+while read -r line; do
+    mac=$(echo "$line" | awk '{print $2}')
+    name=$(echo "$line" | cut -d ' ' -f3-)
+    device_map[$index]="$mac $name"
+    printf "${GREEN}%d. %s (%s)${NC}\n" "$index" "$name" "$mac"
+    ((index++))
+done <<< "$scan_results"
 
 echo -e "${YELLOW}==============================${NC}"
 read -p "Enter the number of the device you want to connect to: " choice
 
-device_info=$(echo "$scan_results" | awk -v choice="$choice" 'NR==choice+1 {print $2, $3}')
-mac_addr=$(echo "$device_info" | awk '{print $1}')
-device_name=$(echo "$device_info" | awk '{print $2}')
-
-if [ -z "$mac_addr" ]; then
+if [[ -z "${device_map[$choice]}" ]]; then
     echo "Invalid selection."
     exit 1
 fi
 
+mac_addr=$(echo "${device_map[$choice]}" | awk '{print $1}')
+device_name=$(echo "${device_map[$choice]}" | cut -d ' ' -f2-)
+
+# Check if the device is already paired
+if bluetoothctl paired-devices | grep -q "$mac_addr"; then
+    echo -e "\033[32mDevice '$device_name' ($mac_addr) is already paired.\033[0m"
+else
+    echo "Pairing with '$device_name' ($mac_addr)..."
+    bluetoothctl pair "$mac_addr"
+    bluetoothctl trust "$mac_addr"
+fi
+
+# Connect to the device
 echo "Connecting to '$device_name' ($mac_addr)..."
-sudo rfcomm connect /dev/rfcomm0 "$mac_addr"
+bluetoothctl connect "$mac_addr"
+
+# Find the next available RFCOMM port
+next_rfcomm=0
+while [ -e "/dev/rfcomm$next_rfcomm" ]; do
+    ((next_rfcomm++))
+done
+rfcomm_dev="/dev/rfcomm$next_rfcomm"
+
+# Bind the device to the next available RFCOMM port
+echo -e "${YELLOW}Binding $mac_addr to $rfcomm_dev...${NC}"
+sudo sdptool add SP
+sudo rfcomm bind "$rfcomm_dev" "$mac_addr"
+
+# Give it a moment to bind
+sleep 5
+
+# Check if the connection was successful
+if [ -e "$rfcomm_dev" ]; then
+    echo -e "\033[32mSuccess! Your device '$device_name' ($mac_addr) is now connected to $rfcomm_dev.\033[0m"
+    echo "You can now use your Bluetooth device. The script will exit, but your device will remain connected."
+else
+    echo -e "\033[31mError: Connection to '$device_name' ($mac_addr) failed. Please try again.\033[0m"
+fi
+
+# Exit the script, leaving the connection active
+exit 0
