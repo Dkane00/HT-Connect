@@ -1,52 +1,32 @@
 #!/bin/bash
 
-# Check if any rfcomm devices are currently connected
-rfcomm_info=$(rfcomm)
+# Find and kill the socat process
+socat_pid=$(pgrep -f "socat -d -d pty,raw,echo=0,link=/tmp/bluetooth-serial")
 
-if [ -z "$rfcomm_info" ]; then
-    echo -e "\033[31mNo Bluetooth devices are currently connected.\033[0m"
-    exit 1
-fi
-
-# Display connected devices
-echo -e "\033[33mCurrently connected Bluetooth devices:\033[0m"
-echo "$rfcomm_info"
-
-# Prompt user to select which device to disconnect
-echo -e "\n\033[33mEnter the rfcomm device number to disconnect (e.g., 0 for /dev/rfcomm0):\033[0m"
-read -p "rfcomm number: " rfcomm_num
-
-rfcomm_dev="/dev/rfcomm$rfcomm_num"
-
-# Extract the MAC address of the selected rfcomm device
-mac_addr=$(echo "$rfcomm_info" | grep "rfcomm$rfcomm_num" | awk '{print $2}')
-
-# Validate that the selected rfcomm device is actually connected
-if [ -z "$mac_addr" ]; then
-    echo -e "\033[31mError: $rfcomm_dev is not currently connected.\033[0m"
-    exit 1
-fi
-
-# Unbind the selected rfcomm device
-echo "Releasing $rfcomm_dev..."
-sudo rfcomm release "$rfcomm_num"
-
-# Verify that the RFCOMM device has been disconnected
-if ! rfcomm | grep -q "rfcomm$rfcomm_num"; then
-    echo -e "\033[32mSuccess! $rfcomm_dev has been disconnected.\033[0m"
+if [ -n "$socat_pid" ]; then
+    echo -e "\033[33mStopping socat connection...\033[0m"
+    sudo kill "$socat_pid"
+    sleep 2  # Give it a moment to fully terminate
 else
-    echo -e "\033[31mError: Failed to disconnect $rfcomm_dev.\033[0m"
+    echo -e "\033[31mNo active socat connection found.\033[0m"
 fi
 
-# Fully disconnect the Bluetooth device while keeping it paired
-echo "Disconnecting from Bluetooth device $mac_addr..."
-echo -e "disconnect $mac_addr\nexit" | bluetoothctl
+# Identify the connected Bluetooth device
+connected_device=$(bluetoothctl info | grep "Device" | awk '{print $2}')
+
+if [ -n "$connected_device" ]; then
+    echo -e "\033[33mDisconnecting Bluetooth device $connected_device...\033[0m"
+    echo -e "disconnect $connected_device\nexit" | bluetoothctl
+    sleep 2
+else
+    echo -e "\033[31mNo connected Bluetooth device found.\033[0m"
+fi
 
 # Confirm disconnection
-if bluetoothctl info "$mac_addr" | grep -q "Connected: yes"; then
+if bluetoothctl info "$connected_device" | grep -q "Connected: yes"; then
     echo -e "\033[31mError: The device is still connected.\033[0m"
 else
-    echo -e "\033[32mSuccess! The Bluetooth device $mac_addr has been fully disconnected but remains paired.\033[0m"
+    echo -e "\033[32mSuccess! The Bluetooth device has been fully disconnected but remains paired.\033[0m"
 fi
 
 # Ask the user if they want to turn off Bluetooth

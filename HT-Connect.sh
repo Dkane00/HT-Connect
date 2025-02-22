@@ -73,7 +73,7 @@ sleep 10
 # Attempt to stop scanning
 echo -e "${YELLOW}Stopping Bluetooth scan...${NC}"
 if ! bluetoothctl scan off; then
-    echo -e "${YELLOW}Scan off command failed. Trying an alternative method...${NC}"
+    echo -e "${YELLOW}Scan off command failed. Killing the scan and moving on${NC}"
     sudo pkill -f "bluetoothctl scan on"
 fi
 
@@ -124,27 +124,20 @@ fi
 echo "Connecting to '$device_name' ($mac_addr)..."
 bluetoothctl connect "$mac_addr"
 
-# Find the next available RFCOMM port
-next_rfcomm=0
-while [ -e "/dev/rfcomm$next_rfcomm" ]; do
-    ((next_rfcomm++))
-done
-rfcomm_dev="/dev/rfcomm$next_rfcomm"
-
-# Bind the device to the next available RFCOMM port
-echo -e "${YELLOW}Binding $mac_addr to $rfcomm_dev...${NC}"
-sudo sdptool add SP
-sudo rfcomm bind "$rfcomm_dev" "$mac_addr"
-
-# Give it a moment to bind
+# Give it a moment to establish the connection
 sleep 5
 
-# Check if the connection was successful
-if [ -e "$rfcomm_dev" ]; then
-    echo -e "\033[32mSuccess! Your device '$device_name' ($mac_addr) is now connected to $rfcomm_dev.\033[0m"
-    echo "You can now use your Bluetooth device. The script will exit, but your device will remain connected."
+# Set up a virtual serial port using socat
+echo -e "${YELLOW}Creating virtual serial port using socat...${NC}"
+pts_device=$(socat -d -d pty,raw,echo=0,link=/tmp/bluetooth-serial TCP-CONNECT:"$mac_addr":1 2>&1 | grep -o '/dev/pts/[0-9]\+')
+
+# Check if the virtual serial port was successfully created
+if [ -n "$pts_device" ]; then
+    echo -e "\033[32mSuccess! Your device '$device_name' ($mac_addr) is now connected to $pts_device.\033[0m"
+    echo "You can now communicate with your Bluetooth device using this serial port."
 else
-    echo -e "\033[31mError: Connection to '$device_name' ($mac_addr) failed. Please try again.\033[0m"
+    echo -e "\033[31mError: Failed to create virtual serial port for '$device_name' ($mac_addr). Please try again.\033[0m"
+    exit 1
 fi
 
 # Exit the script, leaving the connection active
