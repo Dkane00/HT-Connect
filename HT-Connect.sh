@@ -136,10 +136,12 @@ bt_device="/dev/ttybt$bt_index"
 
 # Set up a virtual serial port using socat
 echo -e "${YELLOW}Creating virtual serial port at $bt_device using socat...${NC}"
-sudo socat -d -d pty,raw,echo=0,link=$bt_device TCP-CONNECT:"$mac_addr":1 &
+sudo socat -d -d pty,raw,echo=0,link=$bt_device rfcomm:$mac_addr,channel=1 &
+
+# Give it a moment to establish
+sleep 5
 
 # Check if the virtual serial port was successfully created
-sleep 2
 if [ -e "$bt_device" ]; then
     echo -e "\033[32mSuccess! Your device '$device_name' ($mac_addr) is now connected to $bt_device.\033[0m"
     echo "You can now communicate with your Bluetooth device using this serial port."
@@ -147,3 +149,6 @@ else
     echo -e "\033[31mError: Failed to create virtual serial port for '$device_name' ($mac_addr). Please try again.\033[0m"
     exit 1
 fi
+
+# Exit the script, leaving the connection active
+exit 0
