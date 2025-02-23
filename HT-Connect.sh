@@ -107,7 +107,7 @@ echo "Connecting to '$device_name' ($mac_addr)..."
 #bluetoothctl connect "$mac_addr"
 
 # Give it a moment to establish the connection
-sleep 5
+sleep 10
 
 # Find the next available RFCOMM device
 rfcomm_index=0
@@ -121,7 +121,7 @@ echo -e "${YELLOW}Binding device to RFCOMM: $rfcomm_device${NC}"
 sudo rfcomm bind "$rfcomm_index" "$mac_addr" 1
 
 # Verify RFCOMM binding
-sleep 2
+sleep 5
 if ! rfcomm | grep -q "$rfcomm_device"; then
     echo -e "${RED}Error: Failed to bind RFCOMM device ($rfcomm_device). Retrying...${NC}"
     # Release the port before retrying
