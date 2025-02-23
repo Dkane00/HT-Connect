@@ -1,34 +1,27 @@
 #!/bin/bash
 
-# Color text for the menus
+# Color text for menus
 YELLOW='\e[33m'
 GREEN='\e[32m'
+RED='\e[31m'
 NC='\e[0m'
 
 # Check if the user has sudo permissions
 if ! sudo -v &>/dev/null; then
-    echo "Error: You need sudo permissions to run this script."
+    echo -e "${RED}Error: You need sudo permissions to run this script.${NC}"
     exit 1
 fi
 
 # Prompt user to ensure HT is in pairing mode
 echo -e "${YELLOW}Make sure that your HT is in pairing mode if you have never paired the HT with this device.${NC}"
-echo -e "${YELLOW}1. My HT is Ready, Proceed${NC}"
-echo -e "${YELLOW}2. Exit${NC}"
+echo -e "1. My HT is Ready, Proceed"
+echo -e "2. Exit"
 read -p "Enter your choice (1 or 2): " pairing_choice
 
 case $pairing_choice in
-    1)
-        echo "Proceeding with Bluetooth setup..."
-        ;;
-    2)
-        echo "Exiting. Please put your HT in pairing mode and restart the script."
-        exit 1
-        ;;
-    *)
-        echo "Invalid choice. Exiting."
-        exit 1
-        ;;
+    1) echo "Proceeding with Bluetooth setup..." ;;
+    2) echo "Exiting. Please put your HT in pairing mode and restart the script."; exit 1 ;;
+    *) echo "Invalid choice. Exiting."; exit 1 ;;
 esac
 
 # Function to turn Bluetooth on
@@ -39,41 +32,31 @@ turn_bluetooth_on() {
 }
 
 # Check if Bluetooth is turned on
-bluetooth_status=$(rfkill list bluetooth | grep "Soft blocked: yes")
-if [ -n "$bluetooth_status" ]; then
+if rfkill list bluetooth | grep -q "Soft blocked: yes"; then
     echo -e "${YELLOW}Bluetooth is currently turned off.${NC}"
-    echo -e "${YELLOW}Would you like to turn Bluetooth on?${NC}"
-    echo -e "${YELLOW}1. Turn on Bluetooth${NC}"
-    echo -e "${YELLOW}2. Leave Bluetooth off and exit${NC}"
+    echo -e "1. Turn on Bluetooth"
+    echo -e "2. Leave Bluetooth off and exit"
     read -p "Enter your choice (1 or 2): " choice
     
     case $choice in
-        1)
-            turn_bluetooth_on
-            ;;
-        2)
-            echo "Bluetooth remains off. Exiting."
-            exit 1
-            ;;
-        *)
-            echo "Invalid choice. Exiting."
-            exit 1
-            ;;
+        1) turn_bluetooth_on ;;
+        2) echo "Bluetooth remains off. Exiting."; exit 1 ;;
+        *) echo "Invalid choice. Exiting."; exit 1 ;;
     esac
 fi
 
 # Start scanning for Bluetooth devices
 echo -e "${YELLOW}Scanning for Bluetooth devices...${NC}"
 bluetoothctl scan on &
-scan_pid=$!  # Store the scan process ID
+scan_pid=$!
 
 # Allow scanning to run for a few seconds
 sleep 10  
 
-# Attempt to stop scanning
+# Stop scanning
 echo -e "${YELLOW}Stopping Bluetooth scan...${NC}"
 if ! bluetoothctl scan off; then
-    echo -e "${YELLOW}Scan off command failed. Killing the scan and moving on${NC}"
+    echo -e "${RED}Scan off command failed. Killing scan process...${NC}"
     sudo pkill -f "bluetoothctl scan on"
 fi
 
@@ -82,13 +65,12 @@ scan_results=$(bluetoothctl devices)
 
 # Check if any devices were found
 if [ -z "$scan_results" ]; then
-    echo "No Bluetooth devices found."
+    echo -e "${RED}No Bluetooth devices found.${NC}"
     exit 1
 fi
 
 # Display the results in a numbered menu
 echo -e "${YELLOW}Discovered Bluetooth devices:${NC}"
-echo -e "${YELLOW}==============================${NC}"
 index=1
 declare -A device_map
 
@@ -104,7 +86,7 @@ echo -e "${YELLOW}==============================${NC}"
 read -p "Enter the number of the device you want to connect to: " choice
 
 if [[ -z "${device_map[$choice]}" ]]; then
-    echo "Invalid selection."
+    echo -e "${RED}Invalid selection.${NC}"
     exit 1
 fi
 
@@ -113,7 +95,7 @@ device_name=$(echo "${device_map[$choice]}" | cut -d ' ' -f2-)
 
 # Check if the device is already paired
 if bluetoothctl paired-devices | grep -q "$mac_addr"; then
-    echo -e "\033[32mDevice '$device_name' ($mac_addr) is already paired.\033[0m"
+    echo -e "${GREEN}Device '$device_name' ($mac_addr) is already paired.${NC}"
 else
     echo "Pairing with '$device_name' ($mac_addr)..."
     bluetoothctl pair "$mac_addr"
@@ -127,6 +109,25 @@ bluetoothctl connect "$mac_addr"
 # Give it a moment to establish the connection
 sleep 5
 
+# Find the next available RFCOMM device
+rfcomm_index=0
+while [ -e "/dev/rfcomm$rfcomm_index" ]; do
+    ((rfcomm_index++))
+done
+rfcomm_device="/dev/rfcomm$rfcomm_index"
+
+# Bind the device to RFCOMM
+echo -e "${YELLOW}Binding device to RFCOMM: $rfcomm_device${NC}"
+sudo rfcomm bind "$rfcomm_index" "$mac_addr"
+
+# Verify RFCOMM binding
+sleep 2
+if ! rfcomm | grep -q "$rfcomm_device"; then
+    echo -e "${RED}Error: Failed to bind RFCOMM device ($rfcomm_device).${NC}"
+    sudo rfcomm release "$rfcomm_index"
+    exit 1
+fi
+
 # Find the next available /dev/ttybt* device
 bt_index=0
 while [ -e "/dev/ttybt$bt_index" ]; do
@@ -136,17 +137,18 @@ bt_device="/dev/ttybt$bt_index"
 
 # Set up a virtual serial port using socat
 echo -e "${YELLOW}Creating virtual serial port at $bt_device using socat...${NC}"
-sudo socat -d -d pty,raw,echo=0,link=$bt_device rfcomm:$mac_addr,channel=1 &
+sudo socat -d -d pty,raw,echo=0,link=$bt_device "$rfcomm_device" &
 
 # Give it a moment to establish
 sleep 5
 
 # Check if the virtual serial port was successfully created
 if [ -e "$bt_device" ]; then
-    echo -e "\033[32mSuccess! Your device '$device_name' ($mac_addr) is now connected to $bt_device.\033[0m"
+    echo -e "${GREEN}Success! Your device '$device_name' ($mac_addr) is now connected to $bt_device.${NC}"
     echo "You can now communicate with your Bluetooth device using this serial port."
 else
-    echo -e "\033[31mError: Failed to create virtual serial port for '$device_name' ($mac_addr). Please try again.\033[0m"
+    echo -e "${RED}Error: Failed to create virtual serial port for '$device_name' ($mac_addr).${NC}"
+    sudo rfcomm release "$rfcomm_index"
     exit 1
 fi
 
