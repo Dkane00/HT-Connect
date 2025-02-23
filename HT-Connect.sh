@@ -104,7 +104,7 @@ fi
 
 # Connect to the device
 echo "Connecting to '$device_name' ($mac_addr)..."
-bluetoothctl connect "$mac_addr"
+#bluetoothctl connect "$mac_addr"
 
 # Give it a moment to establish the connection
 sleep 5
