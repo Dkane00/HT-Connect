@@ -123,11 +123,15 @@ sudo rfcomm bind "$rfcomm_index" "$mac_addr" 1
 # Verify RFCOMM binding
 sleep 2
 if ! rfcomm | grep -q "$rfcomm_device"; then
-    echo -e "${RED}Error: Failed to bind RFCOMM device ($rfcomm_device).${NC}"
-    sudo rfcomm release "$rfcomm_index"
-    exit 1
+    echo -e "${RED}Error: Failed to bind RFCOMM device ($rfcomm_device). Retrying...${NC}"
+    sleep 5
+    sudo rfcomm bind "$rfcomm_index" "$mac_addr"
+    if ! rfcomm | grep -q "$rfcomm_device"; then
+        echo -e "${RED}Error: Failed to bind RFCOMM device ($rfcomm_device) after retry.${NC}"
+        sudo rfcomm release "$rfcomm_index"
+        exit 1
+    fi
 fi
-
 # Attach the RFCOMM device to kissattach
 echo -e "${YELLOW}Attaching $rfcomm_device to kissattach as uvtnc1200...${NC}"
 sudo kissattach "$rfcomm_device" uvtnc1200
