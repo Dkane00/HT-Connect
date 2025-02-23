@@ -25,8 +25,8 @@ check_and_install() {
 }
 
 # Check and install required dependencies
-check_and_install "socat" "apt-get install -y"
-check_and_install "bluetoothctl" "apt-get install -y bluez"
+check_and_install "kissattach" "apt-get install -y ax25-tools"
+check_and_install "bluetoothctl" "apt-get install -y bluez bluez-tools"
 
 # Function to remove an existing command
 remove_existing_command() {

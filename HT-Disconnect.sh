@@ -6,17 +6,17 @@ GREEN='\e[32m'
 RED='\e[31m'
 NC='\e[0m'
 
-echo -e "${YELLOW}Stopping socat connection...${NC}"
+echo -e "${YELLOW}Stopping kissattach connection...${NC}"
 
-# Find and kill the socat process
-socat_pid=$(pgrep -f "socat -d -d pty,raw,echo=0,link=/dev/ttybt")
+# Find and kill the kissattach process
+kissattach_pid=$(pgrep -f "kissattach /dev/rfcomm")
 
-if [ -n "$socat_pid" ]; then
-    sudo kill "$socat_pid"
-    sleep 2  # Allow socat to terminate cleanly
-    echo -e "${GREEN}Socat process stopped.${NC}"
+if [ -n "$kissattach_pid" ]; then
+    sudo kill "$kissattach_pid"
+    sleep 2  # Allow kissattach to terminate cleanly
+    echo -e "${GREEN}Kissattach process stopped.${NC}"
 else
-    echo -e "${RED}No active socat connection found.${NC}"
+    echo -e "${RED}No active kissattach connection found.${NC}"
 fi
 
 # Identify the connected Bluetooth device

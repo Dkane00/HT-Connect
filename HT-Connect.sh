@@ -14,8 +14,8 @@ fi
 
 # Prompt user to ensure HT is in pairing mode
 echo -e "${YELLOW}Make sure that your HT is in pairing mode if you have never paired the HT with this device.${NC}"
-echo -e "1. My HT is Ready, Proceed"
-echo -e "2. Exit"
+echo -e "${YELLOW}1. My HT is Ready, Proceed${NC}"
+echo -e "${YELLOW}2. Exit${NC}"
 read -p "Enter your choice (1 or 2): " pairing_choice
 
 case $pairing_choice in
@@ -34,8 +34,8 @@ turn_bluetooth_on() {
 # Check if Bluetooth is turned on
 if rfkill list bluetooth | grep -q "Soft blocked: yes"; then
     echo -e "${YELLOW}Bluetooth is currently turned off.${NC}"
-    echo -e "1. Turn on Bluetooth"
-    echo -e "2. Leave Bluetooth off and exit"
+    echo -e "${YELLOW}1. Turn on Bluetooth${NC}"
+    echo -e "${YELLOW}2. Leave Bluetooth off and exit${NC}"
     read -p "Enter your choice (1 or 2): " choice
     
     case $choice in
@@ -128,26 +128,17 @@ if ! rfcomm | grep -q "$rfcomm_device"; then
     exit 1
 fi
 
-# Find the next available /dev/ttybt* device
-bt_index=0
-while [ -e "/dev/ttybt$bt_index" ]; do
-    ((bt_index++))
-done
-bt_device="/dev/ttybt$bt_index"
+# Attach the RFCOMM device to kissattach
+echo -e "${YELLOW}Attaching $rfcomm_device to kissattach as uvtnc1200...${NC}"
+sudo kissattach "$rfcomm_device" uvtnc1200
 
-# Set up a virtual serial port using socat
-echo -e "${YELLOW}Creating virtual serial port at $bt_device using socat...${NC}"
-sudo socat -d -d pty,raw,echo=0,link=$bt_device "$rfcomm_device" &
-
-# Give it a moment to establish
-sleep 5
-
-# Check if the virtual serial port was successfully created
-if [ -e "$bt_device" ]; then
-    echo -e "${GREEN}Success! Your device '$device_name' ($mac_addr) is now connected to $bt_device.${NC}"
-    echo "You can now communicate with your Bluetooth device using this serial port."
+# Verify kissattach setup
+sleep 2
+if ifconfig | grep -q "uvtnc1200"; then
+    echo -e "${GREEN}Success! Your device '$device_name' ($mac_addr) is now connected as uvtnc1200.${NC}"
+    echo "You can now communicate with your KISS TNC using the uvtnc1200 interface."
 else
-    echo -e "${RED}Error: Failed to create virtual serial port for '$device_name' ($mac_addr).${NC}"
+    echo -e "${RED}Error: Failed to attach RFCOMM device to kissattach.${NC}"
     sudo rfcomm release "$rfcomm_index"
     exit 1
 fi
