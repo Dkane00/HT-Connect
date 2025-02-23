@@ -118,7 +118,7 @@ rfcomm_device="/dev/rfcomm$rfcomm_index"
 
 # Bind the device to RFCOMM
 echo -e "${YELLOW}Binding device to RFCOMM: $rfcomm_device${NC}"
-sudo rfcomm bind "$rfcomm_index" "$mac_addr"
+sudo rfcomm bind "$rfcomm_index" "$mac_addr" 1
 
 # Verify RFCOMM binding
 sleep 2
