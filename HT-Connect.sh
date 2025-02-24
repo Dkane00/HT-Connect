@@ -93,22 +93,6 @@ fi
 mac_addr=$(echo "${device_map[$choice]}" | awk '{print $1}')
 device_name=$(echo "${device_map[$choice]}" | cut -d ' ' -f2-)
 
-# Check if the device is already paired
-if bluetoothctl paired-devices | grep -q "$mac_addr"; then
-    echo -e "${GREEN}Device '$device_name' ($mac_addr) is already paired.${NC}"
-else
-    echo "Pairing with '$device_name' ($mac_addr)..."
-    bluetoothctl pair "$mac_addr"
-    bluetoothctl trust "$mac_addr"
-fi
-
-# Connect to the device
-echo "Connecting to '$device_name' ($mac_addr)..."
-#bluetoothctl connect "$mac_addr"
-
-# Give it a moment to establish the connection
-sleep 10
-
 # Find the next available RFCOMM device
 rfcomm_index=0
 while [ -e "/dev/rfcomm$rfcomm_index" ]; do
@@ -116,9 +100,9 @@ while [ -e "/dev/rfcomm$rfcomm_index" ]; do
 done
 rfcomm_device="/dev/rfcomm$rfcomm_index"
 
-# Bind the device to RFCOMM
+# Bind the device to RFCOMM in the background
 echo -e "${YELLOW}Binding device to RFCOMM: $rfcomm_device${NC}"
-sudo rfcomm bind "$rfcomm_index" "$mac_addr" 1
+sudo rfcomm connect "$rfcomm_index" "$mac_addr" 1 &
 
 # Verify RFCOMM binding
 sleep 5
