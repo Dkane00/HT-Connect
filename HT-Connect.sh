@@ -100,23 +100,21 @@ while [ -e "/dev/rfcomm$rfcomm_index" ]; do
 done
 rfcomm_device="/dev/rfcomm$rfcomm_index"
 
-# Bind the device to RFCOMM in the background
+# connect the device to RFCOMM in the background
 echo -e "${YELLOW}Binding device to RFCOMM: $rfcomm_device${NC}"
-sudo rfcomm connect "$rfcomm_index" "$mac_addr" 1 &
+nohup sudo rfcomm connect "$rfcomm_index" "$mac_addr" 1 > /dev/null 2>&1 &
+rfcomm_pid=$!
 
-# Verify RFCOMM binding
+# Allow some time for the connection to establish
 sleep 5
-if ! rfcomm | grep -q "$rfcomm_device"; then
-    echo -e "${RED}Error: Failed to bind RFCOMM device ($rfcomm_device). Retrying...${NC}"
-    # Release the port before retrying
-    sudo rfcomm release "$rfcomm_index" 2>/dev/null
-    sleep 5
-    sudo rfcomm bind "$rfcomm_index" "$mac_addr"
-    if ! rfcomm | grep -q "$rfcomm_device"; then
-        echo -e "${RED}Error: Failed to bind RFCOMM device ($rfcomm_device) after retry.${NC}"
-        sudo rfcomm release "$rfcomm_index"
-        exit 1
-    fi
+
+# Check if the RFCOMM device is connected
+if rfcomm | grep -q "$rfcomm_device.*connected"; then
+    echo -e "${GREEN}Success! RFCOMM device ($rfcomm_device) is connected.${NC}"
+else
+    echo -e "${RED}Error: RFCOMM device ($rfcomm_device) is not connected.${NC}"
+    sudo rfcomm release "$rfcomm_index"
+    exit 1
 fi
 
 # Attach the RFCOMM device to kissattach
