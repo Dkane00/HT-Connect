@@ -19,6 +19,18 @@ else
     echo -e "${RED}No active kissattach connection found.${NC}"
 fi
 
+# Find and kill the rfcomm process
+rfcomm_pid=$(pgrep -f "rfcomm connect")
+
+if [ -n "$rfcomm_pid" ]; then
+    echo -e "${YELLOW}Terminating RFCOMM process (PID: $rfcomm_pid)...${NC}"
+    sudo kill "$rfcomm_pid"
+    sleep 2  # Allow process to close
+    echo -e "${GREEN}RFCOMM process stopped.${NC}"
+else
+    echo -e "${RED}No active RFCOMM process found.${NC}"
+fi
+
 # Identify the connected Bluetooth device
 connected_device=$(bluetoothctl info | grep "Device" | awk '{print $2}')
 
