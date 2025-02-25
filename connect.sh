@@ -38,7 +38,7 @@ sudo rfcomm release "$rfcomm_index" 2>/dev/null
 
 # Connect the Bluetooth device to RFCOMM in the background
 echo -e "${YELLOW}Connecting device ($mac_addr) to RFCOMM: $rfcomm_device${NC}"
-sudo nohup rfcomm connect "$rfcomm_index" "$mac_addr" 1 > /dev/null 2>&1 & disown
+sudo nohup rfcomm connect "$rfcomm_index" "$mac_addr" > /dev/null 2>&1 & sleep 2 && disown
 
 # Allow time for connection to establish
 sleep 10

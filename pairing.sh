@@ -103,4 +103,32 @@ else
     exit 1
 fi
 
+# Connect to the Bluetooth device
+echo -e "${YELLOW}Connecting to $mac_addr...${NC}"
+bluetoothctl connect "$mac_addr"
+
+# Check connection status
+if bluetoothctl info "$mac_addr" | grep -q "Connected: yes"; then
+    echo -e "${GREEN}Successfully connected to ${device_map[$choice]}${NC}"
+else
+    echo -e "${RED}Failed to connect to ${device_map[$choice]}.${NC}"
+    exit 1
+fi
+
+sleep 5
+
+# Disconnect the device
+echo -e "${YELLOW}Disconnecting from $mac_addr...${NC}"
+bluetoothctl disconnect "$mac_addr"
+
+# Verify disconnection
+if bluetoothctl info "$mac_addr" | grep -q "Connected: no"; then
+    echo -e "${GREEN}Successfully disconnected from ${device_map[$choice]}${NC}"
+else
+    echo -e "${RED}Warning: Device ${device_map[$choice]} may still be connected.${NC}"
+fi
+
+# Final message
+echo -e "${GREEN}Your HT is now ready to connect${NC}"
+
 exit 0
