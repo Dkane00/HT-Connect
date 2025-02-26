@@ -1,32 +1,23 @@
 #!/bin/bash
 
-#### This script will install HT-Connect and HT-Disconnect as command-line executables
+# Define script paths
+INSTALL_DIR="$HOME/HT-Connect"
+CONNECT_SCRIPT_PATH="$INSTALL_DIR/connect.sh"
+DISCONNECT_SCRIPT_PATH="$INSTALL_DIR/disconnect.sh"
+PAIRING_SCRIPT_PATH="$INSTALL_DIR/pairing.sh"
 
-# Define paths for both scripts
-CONNECT_SCRIPT_PATH="$HOME/HT-Connect/HT-Connect.sh"
-DISCONNECT_SCRIPT_PATH="$HOME/HT-Connect/HT-Disconnect.sh"
+# Define command names
+HT_COMMAND="ht"
+HT_COMMAND_PATH="/usr/local/bin/$HT_COMMAND"
 
+# Define individual command names
 CONNECT_COMMAND_NAME="ht-connect"
 DISCONNECT_COMMAND_NAME="ht-disconnect"
+PAIRING_COMMAND_NAME="ht-pair"
 
 CONNECT_LINK_PATH="/usr/local/bin/$CONNECT_COMMAND_NAME"
 DISCONNECT_LINK_PATH="/usr/local/bin/$DISCONNECT_COMMAND_NAME"
-
-# Function to check if a package is installed
-check_and_install() {
-    local package_name=$1
-    local install_command=$2
-    if ! command -v "$package_name" &>/dev/null; then
-        echo "$package_name is not installed. Installing..."
-        sudo $install_command "$package_name"
-    else
-        echo "$package_name is already installed."
-    fi
-}
-
-# Check and install required dependencies
-check_and_install "kissattach" "apt-get install -y ax25-tools"
-check_and_install "bluetoothctl" "apt-get install -y bluez bluez-tools"
+PAIRING_LINK_PATH="/usr/local/bin/$PAIRING_COMMAND_NAME"
 
 # Function to remove an existing command
 remove_existing_command() {
@@ -62,8 +53,33 @@ install_script() {
     echo "Command '$command_name' has been added. You can now run it by typing '$command_name' in the terminal."
 }
 
-# Install both scripts
+# Install scripts
 install_script "$CONNECT_SCRIPT_PATH" "$CONNECT_COMMAND_NAME" "$CONNECT_LINK_PATH"
 install_script "$DISCONNECT_SCRIPT_PATH" "$DISCONNECT_COMMAND_NAME" "$DISCONNECT_LINK_PATH"
+install_script "$PAIRING_SCRIPT_PATH" "$PAIRING_COMMAND_NAME" "$PAIRING_LINK_PATH"
 
-echo "Installation complete. You can now use 'ht-connect' and 'ht-disconnect'."
+# Create the 'ht' command script
+cat <<EOL | sudo tee "$HT_COMMAND_PATH" > /dev/null
+#!/bin/bash
+
+case "\$1" in
+    pair)
+        $PAIRING_COMMAND_NAME
+        ;;
+    connect)
+        $CONNECT_COMMAND_NAME
+        ;;
+    disconnect)
+        $DISCONNECT_COMMAND_NAME
+        ;;
+    *)
+        echo "Usage: ht [pair|connect|disconnect]"
+        exit 1
+        ;;
+esac
+EOL
+
+# Ensure the 'ht' script is executable
+sudo chmod +x "$HT_COMMAND_PATH"
+
+echo "Installation complete. You can now use 'ht pair', 'ht connect', or 'ht disconnect'."
