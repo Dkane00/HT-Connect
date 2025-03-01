@@ -12,9 +12,9 @@ HT_COMMAND="htc"
 HT_COMMAND_PATH="/usr/local/bin/$HT_COMMAND"
 
 # Define individual command names
-CONNECT_COMMAND_NAME="htc-connect"
-DISCONNECT_COMMAND_NAME="htc-disconnect"
-PAIRING_COMMAND_NAME="htc-pair"
+CONNECT_COMMAND_NAME="htc connect"
+DISCONNECT_COMMAND_NAME="htc disconnect"
+PAIRING_COMMAND_NAME="htc pair"
 
 CONNECT_LINK_PATH="/usr/local/bin/$CONNECT_COMMAND_NAME"
 DISCONNECT_LINK_PATH="/usr/local/bin/$DISCONNECT_COMMAND_NAME"
@@ -86,6 +86,9 @@ case "\$1" in
         ;;
 esac
 EOL
+
+# Ensure the 'htc' script is executable
+sudo chmod +x "$HTC_COMMAND_PATH"
 
 echo "Installation complete! You can now use:"
 echo "  - htc pair       (Pair a Bluetooth device)"
