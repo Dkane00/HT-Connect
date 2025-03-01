@@ -8,13 +8,13 @@ PAIRING_SCRIPT_PATH="$INSTALL_DIR/pairing.sh"
 HT_SCRIPT_PATH="$INSTALL_DIR/ht.sh"
 
 # Define command names
-HT_COMMAND="ht"
+HT_COMMAND="htc"
 HT_COMMAND_PATH="/usr/local/bin/$HT_COMMAND"
 
 # Define individual command names
-CONNECT_COMMAND_NAME="ht-connect"
-DISCONNECT_COMMAND_NAME="ht-disconnect"
-PAIRING_COMMAND_NAME="ht-pair"
+CONNECT_COMMAND_NAME="htc-connect"
+DISCONNECT_COMMAND_NAME="htc-disconnect"
+PAIRING_COMMAND_NAME="htc-pair"
 
 CONNECT_LINK_PATH="/usr/local/bin/$CONNECT_COMMAND_NAME"
 DISCONNECT_LINK_PATH="/usr/local/bin/$DISCONNECT_COMMAND_NAME"
@@ -74,21 +74,21 @@ case "\$1" in
         $DISCONNECT_COMMAND_NAME
         ;;
     --help|-h)
-        echo -e "\nAvailable 'ht' commands:\n"
-        echo -e "  1. ht pair       - Scan, pair, and trust a new Bluetooth device"
-        echo -e "  2. ht connect    - Connect to a previously paired device and bind to RFCOMM"
-        echo -e "  3. ht disconnect - Disconnect the Bluetooth device and release RFCOMM"
-        echo -e "\nUsage: ht <command>\n"
+        echo -e "\nAvailable 'htc' commands:\n"
+        echo -e "  1. htc pair       - Scan, pair, and trust a new Bluetooth device"
+        echo -e "  2. htc connect    - Connect to a previously paired device and bind to RFCOMM"
+        echo -e "  3. htc disconnect - Disconnect the Bluetooth device and release RFCOMM"
+        echo -e "\nUsage: htc <command>\n"
         ;;
     *)
-        echo "Invalid command. Use 'ht --help' for a list of available commands."
+        echo "Invalid command. Use 'htc --help' for a list of available commands."
         exit 1
         ;;
 esac
 EOL
 
 echo "Installation complete! You can now use:"
-echo "  - ht pair       (Pair a Bluetooth device)"
-echo "  - ht connect    (Connect an already paired device)"
-echo "  - ht disconnect (Disconnect and release the device)"
-echo "  - ht            (View available commands)"
+echo "  - htc pair       (Pair a Bluetooth device)"
+echo "  - htc connect    (Connect an already paired device)"
+echo "  - htc disconnect (Disconnect and release the device)"
+echo "  - htc --help     (View available commands)"
