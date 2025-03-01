@@ -8,40 +8,43 @@ Ht-Connect is a bash script for linux that will allow you to connect your Btech 
 This script only automates the connecting of the HT to the computer over Bluetooth.  Once connected you will have to setup whatever software you are using to use the ht.  This script does NOT set up the software to work with the ht. It is not clear yet what all software these HT's will work with so try it out and Have fun.**
 
 
-## Getting the HT-Connect Script
+## Installing the HT-Connect
 
-simply copy the repo to you computer and run the script
-
-### copy the repo
+### Clone this repo
 
 ``` shell
 get clone https://github.com/Dkane00/HT-Connect.git
 ```
-
-### Easy Button
-
-#### Cd into the repo
+#### Cd into HT-Connect folder
 ``` shell
 cd HT-Connect
 ```
-#### Make sure that the install script and the HT-Connect script are both executable
-``` shell
-sudo chmod +x install-ht-connect.sh HT-Connect.sh
-```
-#### Run the install Script
-- This script will allow you to run the HT-Connect.sh script by just typing the simple command ht-connect from the command line
+#### Run the install
 ``` shell
 ./install-ht-connect.sh
 ```
-### Running the HT-Connect script without installing the simple command
 
-#### Cd into the repo
-``` shell
-cd HT-Connect
-```
+## How to Use
 
-#### run the script
-``` shell
-./HT-Connect.sh
-```
+Commands:
+- htc --help
+  - This will give you this list of commands and what they do 
 
+- htc pair
+  - This command will will scan for Bluetooth devices and give you a list of found devices of which it will connect the one that you select. 
+
+- htc connect
+  - This command will connect an already paired ht to a rfcomm serial port on your computer that can then be used to interface the radio with software on your computer that will work with rfcomm serial ports.
+
+- htc disconnect
+  - This command will diconnect the radio from the rfcomm port and Bluetooth.
+
+
+
+## What is to come
+
+- kissattach
+  - will be adding a command to connect the ht to kissattach which will allow the use of the Linux native ax-25 protocall.  This will allow the radio to be used with pat winlink as well as some packet bbs terminals
+
+- Maybe a GUI
+  - I may try to put all of this in a simple GUI so that it can be even more user friendly and easier for those that may not be too familar with the terminal.
