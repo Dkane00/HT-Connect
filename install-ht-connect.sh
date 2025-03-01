@@ -74,6 +74,9 @@ case "\$1" in
         ;;
     *)
         echo "Usage: ht [pair|connect|disconnect]"
+        echo "pair         - Will scann for Bluetooth devices then pair and connect the device you select from a menu"
+        echo "connect      - Will connect an already paired HT to a rfcomm seiral port"
+        echo "disconnect   - Will disconnect the HT from any connected ports and release the ports"
         exit 1
         ;;
 esac
