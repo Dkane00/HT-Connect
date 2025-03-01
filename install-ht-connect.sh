@@ -88,7 +88,7 @@ esac
 EOL
 
 # Ensure the 'htc' script is executable
-sudo chmod +x "$HTC_COMMAND_PATH"
+sudo chmod +x "$HT_COMMAND_PATH"
 
 echo "Installation complete! You can now use:"
 echo "  - htc pair       (Pair a Bluetooth device)"
