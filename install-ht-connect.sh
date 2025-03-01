@@ -5,6 +5,7 @@ INSTALL_DIR="$HOME/HT-Connect"
 CONNECT_SCRIPT_PATH="$INSTALL_DIR/connect.sh"
 DISCONNECT_SCRIPT_PATH="$INSTALL_DIR/disconnect.sh"
 PAIRING_SCRIPT_PATH="$INSTALL_DIR/pairing.sh"
+HT_SCRIPT_PATH="$INSTALL_DIR/ht.sh"
 
 # Define command names
 HT_COMMAND="ht"
@@ -58,31 +59,19 @@ install_script "$CONNECT_SCRIPT_PATH" "$CONNECT_COMMAND_NAME" "$CONNECT_LINK_PAT
 install_script "$DISCONNECT_SCRIPT_PATH" "$DISCONNECT_COMMAND_NAME" "$DISCONNECT_LINK_PATH"
 install_script "$PAIRING_SCRIPT_PATH" "$PAIRING_COMMAND_NAME" "$PAIRING_LINK_PATH"
 
-# Create the 'ht' command script
-cat <<EOL | sudo tee "$HT_COMMAND_PATH" > /dev/null
-#!/bin/bash
+# Install the main 'ht' script
+if [ -f "$HT_SCRIPT_PATH" ]; then
+    remove_existing_command "$HT_COMMAND_PATH"
+    sudo ln -sf "$HT_SCRIPT_PATH" "$HT_COMMAND_PATH"
+    sudo chmod +x "$HT_SCRIPT_PATH"
+    echo "Installed: ht (main command)"
+else
+    echo "Error: 'ht.sh' script not found at $HT_SCRIPT_PATH"
+    exit 1
+fi
 
-case "\$1" in
-    pair)
-        $PAIRING_COMMAND_NAME
-        ;;
-    connect)
-        $CONNECT_COMMAND_NAME
-        ;;
-    disconnect)
-        $DISCONNECT_COMMAND_NAME
-        ;;
-    *)
-        echo "Usage: ht [pair|connect|disconnect]"
-        echo "pair         - Will scann for Bluetooth devices then pair and connect the device you select from a menu"
-        echo "connect      - Will connect an already paired HT to a rfcomm seiral port"
-        echo "disconnect   - Will disconnect the HT from any connected ports and release the ports"
-        exit 1
-        ;;
-esac
-EOL
-
-# Ensure the 'ht' script is executable
-sudo chmod +x "$HT_COMMAND_PATH"
-
-echo "Installation complete. You can now use 'ht pair', 'ht connect', or 'ht disconnect'."
+echo "Installation complete! You can now use:"
+echo "  - ht pair       (Pair a Bluetooth device)"
+echo "  - ht connect    (Connect an already paired device)"
+echo "  - ht disconnect (Disconnect and release the device)"
+echo "  - ht            (View available commands)"
