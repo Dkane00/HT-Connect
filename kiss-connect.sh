@@ -76,17 +76,17 @@ fi
 # Success message for RFCOMM connection
 echo -e "${GREEN}Success: Device $mac_addr is now connected to $rfcomm_device.${NC}"
 
-# Connect the RFCOMM device to kissattach using 'w12k' as the interface name
-echo -e "${YELLOW}Connecting RFCOMM device $rfcomm_device to kissattach with interface name 'w12k'...${NC}"
-sudo kissattach "$rfcomm_device" w12k
+# Connect the RFCOMM device to kissattach using 'wl2k' as the interface name
+echo -e "${YELLOW}Connecting RFCOMM device $rfcomm_device to kissattach with interface name 'wl2k'...${NC}"
+sudo kissattach "$rfcomm_device" wl2k
 
 # Verify if kissattach was successful
 if ! ip link show w12k &>/dev/null; then
-    echo -e "${RED}Error: Failed to create KISS interface 'w12k'.${NC}"
+    echo -e "${RED}Error: Failed to create KISS interface 'wl2k'.${NC}"
     exit 1
 fi
 
 # Success message for kissattach
-echo -e "${GREEN}Success: RFCOMM device is now connected to KISS interface 'w12k'.${NC}"
+echo -e "${GREEN}Success: RFCOMM device is now connected to KISS interface 'wl2k'.${NC}"
 
 exit 0
