@@ -32,7 +32,7 @@ setup_kiss_connection() {
     fi
 
     sudo kissattach "$rfcomm_device" "$INTERFACE_NAME"
-    if ! ip link show "$INTERFACE_NAME" &>/dev/null; then
+    if ! ip link show ax0 &>/dev/null; then
         yad --title="Error" --text="Failed to create KISS interface '$INTERFACE_NAME'." --button="OK" --width=300 --height=100
         return 1
     fi
