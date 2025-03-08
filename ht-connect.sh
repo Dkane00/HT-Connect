@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Export the run_script function so it can be used in subshells
+export -f run_script
+
 # Function to run a script with sudo password prompt
 run_script() {
     local script=$1
