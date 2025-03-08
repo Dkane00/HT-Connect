@@ -6,6 +6,7 @@ CONNECT_SCRIPT_PATH="$INSTALL_DIR/connect.sh"
 DISCONNECT_SCRIPT_PATH="$INSTALL_DIR/disconnect.sh"
 PAIRING_SCRIPT_PATH="$INSTALL_DIR/pairing.sh"
 TCP_CONNECT_SCRIPT_PATH="$INSTALL_DIR/tcp-connect.sh"
+KISS_CONNECT_SCRIPT_PATH="$INSTALL_DIR/kiss-connect.sh"
 
 # Define command names
 HTC_COMMAND="htc"
@@ -15,12 +16,14 @@ HTC_COMMAND_PATH="/usr/local/bin/$HTC_COMMAND"
 CONNECT_COMMAND_NAME="htc-connect"
 DISCONNECT_COMMAND_NAME="htc-disconnect"
 PAIRING_COMMAND_NAME="htc-pair"
-TCP_CONNECT_COMMAND_NAME="htc-tcp"
+TCP_COMMAND_NAME="htc-tcp"
+KISS_COMMAND_NAME="htc-kiss"
 
 CONNECT_LINK_PATH="/usr/local/bin/$CONNECT_COMMAND_NAME"
 DISCONNECT_LINK_PATH="/usr/local/bin/$DISCONNECT_COMMAND_NAME"
 PAIRING_LINK_PATH="/usr/local/bin/$PAIRING_COMMAND_NAME"
-TCP_CONNECT_LINK_PATH="/usr/local/bin/$TCP_CONNECT_COMMAND_NAME"
+TCP_LINK_PATH="/usr/local/bin/$TCP_COMMAND_NAME"
+KISS_LINK_PATH="/usr/local/bin/$KISS_COMMAND_NAME"
 
 # Function to remove an existing command
 remove_existing_command() {
@@ -60,7 +63,8 @@ install_script() {
 install_script "$CONNECT_SCRIPT_PATH" "$CONNECT_COMMAND_NAME" "$CONNECT_LINK_PATH"
 install_script "$DISCONNECT_SCRIPT_PATH" "$DISCONNECT_COMMAND_NAME" "$DISCONNECT_LINK_PATH"
 install_script "$PAIRING_SCRIPT_PATH" "$PAIRING_COMMAND_NAME" "$PAIRING_LINK_PATH"
-install_script "$TCP_CONNECT_SCRIPT_PATH" "$TCP_CONNECT_COMMAND_NAME" "$TCP_CONNECT_LINK_PATH"
+install_script "$TCP_CONNECT_SCRIPT_PATH" "$TCP_COMMAND_NAME" "$TCP_LINK_PATH"
+install_script "$KISS_CONNECT_SCRIPT_PATH" "$KISS_COMMAND_NAME" "$KISS_LINK_PATH"
 
 # Create the 'htc' command script
 cat <<EOL | sudo tee "$HTC_COMMAND_PATH" > /dev/null
@@ -77,15 +81,19 @@ case "\$1" in
         $DISCONNECT_COMMAND_NAME
         ;;
     tcp)
-        $TCP_CONNECT_COMMAND_NAME
+        $TCP_COMMAND_NAME
+        ;;
+    kiss)
+        $KISS_COMMAND_NAME
         ;;
     --help|-h)
-        echo -e "\\nAvailable 'htc' commands:\\n"
+        echo -e "\nAvailable 'htc' commands:\n"
         echo -e "  1. htc pair       - Scan, pair, and trust a new Bluetooth device"
         echo -e "  2. htc connect    - Connect to a previously paired device and bind to RFCOMM"
         echo -e "  3. htc disconnect - Disconnect the Bluetooth device and release RFCOMM"
-        echo -e "  4. htc tcp        - Connect the RFCOMM port to a TCP port using socat"
-        echo -e "\\nUsage: htc <command>\\n"
+        echo -e "  4. htc tcp        - Connect the ht tnc to a TCP port using socat"
+        echo -e "  5. htc kiss       - Connect the ht tnc to kissattach"
+        echo -e "\nUsage: htc <command>\n"
         ;;
     *)
         echo "Invalid command. Use 'htc --help' for a list of available commands."
@@ -102,4 +110,5 @@ echo "  - htc pair       (Pair a Bluetooth device)"
 echo "  - htc connect    (Connect an already paired device)"
 echo "  - htc disconnect (Disconnect and release the device)"
 echo "  - htc tcp        (connect ht tnc to tcp port)"
+echo "  - htc kiss       (connect ht tnc to kissattach)"
 echo "  - htc --help     (View available commands)"
