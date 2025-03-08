@@ -12,6 +12,30 @@ if ! sudo -v &>/dev/null; then
     exit 1
 fi
 
+# Check if Bluetooth is turned off
+if rfkill list bluetooth | grep -q "Soft blocked: yes"; then
+    echo -e "${YELLOW}Bluetooth is currently turned off.${NC}"
+    echo -e "${YELLOW}1. Turn on Bluetooth${NC}"
+    echo -e "${YELLOW}2. Exit without turning on Bluetooth${NC}"
+    read -p "Enter your choice (1 or 2): " choice
+    
+    case $choice in
+        1) 
+            echo -e "${YELLOW}Turning on Bluetooth...${NC}"
+            sudo rfkill unblock bluetooth
+            sleep 2 
+            ;;
+        2) 
+            echo -e "${RED}Bluetooth remains off. Exiting.${NC}"
+            exit 1 
+            ;;
+        *) 
+            echo -e "${RED}Invalid choice. Exiting.${NC}"
+            exit 1 
+            ;;
+    esac
+fi
+
 # Search for paired devices matching 'UV-PRO' or 'VN76'
 echo -e "${YELLOW}Searching for paired devices named 'UV-PRO' or 'VN76'...${NC}"
 paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VN76')
