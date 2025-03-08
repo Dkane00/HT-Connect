@@ -81,7 +81,7 @@ echo -e "${YELLOW}Connecting RFCOMM device $rfcomm_device to kissattach with int
 sudo kissattach "$rfcomm_device" wl2k
 
 # Verify if kissattach was successful
-if ! ip link show w12k &>/dev/null; then
+if ! ip link show ax0 &>/dev/null; then
     echo -e "${RED}Error: Failed to create KISS interface 'wl2k'.${NC}"
     exit 1
 fi
