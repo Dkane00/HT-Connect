@@ -36,15 +36,20 @@ Commands:
 - htc connect
   - This command will connect an already paired ht to a rfcomm serial port on your computer that can then be used to interface the radio with software on your computer that will work with rfcomm serial ports.
 
-- htc disconnect
-  - This command will diconnect the radio from the rfcomm port and Bluetooth.
+- htc tcp
+  - This command will connect an already paired ht to a rfcomm serial port and then connect that rfcomm serial port to a tcp port using socat. This makes the tnc available on the local computer through a local tcp network port.  This can be used to attach the Bluetooth TNC in the ht to ham radio software through a local tcp connection and allows the use of these ht's with software that may not support rfcomm serial ports or to standardize how software connects to different radios or tnc's
 
+- htc kiss
+  - This command will connect an already paired ht to a rfcomm serial port and then attach that serial port to the native linux ax25 system using kissattach. This makes it possible to use the Bluetooth tnc with the native ax25 system built into linx allowing the use of some ax25 packet applications that can use the linux native ax25 system.
+
+- htc disconnect
+  - This command will diconnect the radio from any of the above connected services. After running this the radio will be fully disconnected from the computer but will remain in the paired device list so that it can be reconnected at a later time without having to pair the radio again.
+
+## **Note**
+**Durring testing after disconnecting the radio from the computer the radio would have to be turned off and back on before reconnecting the radio to the computer using any of the connection types.**
 
 
 ## What is to come
-
-- kissattach
-  - will be adding a command to connect the ht to kissattach which will allow the use of the Linux native ax-25 protocall.  This will allow the radio to be used with pat winlink as well as some packet bbs terminals
 
 - Maybe a GUI
   - I may try to put all of this in a simple GUI so that it can be even more user friendly and easier for those that may not be too familar with the terminal.
