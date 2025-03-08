@@ -242,9 +242,9 @@ tcp_connect() {
 
 # Main GUI
 yad --title="HT Connect" --form \
-    --field="Connect Bluetooth:BTN" "bash -c 'connect_bluetooth'" \
-    --field="Disconnect Bluetooth:BTN" "bash -c 'disconnect_bluetooth'" \
-    --field="KISS Connect:BTN" "bash -c 'kiss_connect'" \
-    --field="Pairing:BTN" "bash -c 'pair_bluetooth'" \
-    --field="TCP Connect:BTN" "bash -c 'tcp_connect'" \
+    --field="Connect Bluetooth:BTN" "bash -c 'source $0; connect_bluetooth'" \
+    --field="Disconnect Bluetooth:BTN" "bash -c 'source $0; disconnect_bluetooth'" \
+    --field="KISS Connect:BTN" "bash -c 'source $0; kiss_connect'" \
+    --field="Pairing:BTN" "bash -c 'source $0; pair_bluetooth'" \
+    --field="TCP Connect:BTN" "bash -c 'source $0; tcp_connect'" \
     --button="Exit" --width=400 --height=300
