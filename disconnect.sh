@@ -19,16 +19,16 @@ else
     echo -e "${RED}No active kissattach connection found.${NC}"
 fi
 
-# Find and kill the rfcomm process
-rfcomm_pid=$(pgrep -f "rfcomm connect")
+# Find and kill any running socat process
+socat_pid=$(pgrep -f "socat -d tcp-listen:9100")
 
-if [ -n "$rfcomm_pid" ]; then
-    echo -e "${YELLOW}Terminating RFCOMM process (PID: $rfcomm_pid)...${NC}"
-    sudo kill "$rfcomm_pid"
-    sleep 2  # Allow process to close
-    echo -e "${GREEN}RFCOMM process stopped.${NC}"
+if [ -n "$socat_pid" ]; then
+    echo -e "${YELLOW}Stopping socat process (PID: $socat_pid)...${NC}"
+    sudo kill "$socat_pid"
+    sleep 2
+    echo -e "${GREEN}Socat process stopped.${NC}"
 else
-    echo -e "${RED}No active RFCOMM process found.${NC}"
+    echo -e "${RED}No active socat process found.${NC}"
 fi
 
 # Identify the connected Bluetooth device
