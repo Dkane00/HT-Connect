@@ -1,12 +1,26 @@
 #!/bin/bash
 
+# Function to check Bluetooth status and prompt user
+check_bluetooth() {
+    if ! rfkill list bluetooth | grep -q "Soft blocked: no"; then
+        yad --center --width=300 --height=150 --title="Bluetooth Off" --button="Turn On:0" --button="Exit:1" --text="Bluetooth is off.\nWould you like to turn it on?"
+        choice=$?
+        
+        if [ "$choice" -eq 0 ]; then
+            rfkill unblock bluetooth
+        else
+            yad --center --width=300 --height=100 --title="Exiting" --text="Bluetooth must be on to continue." --button="OK:0"
+            exit 1
+        fi
+    fi
+}
+
+# Run Bluetooth check
+check_bluetooth
+
 # Function to set up KISS connection
 setup_kiss_connection() {
-    if ! rfkill list bluetooth | grep -q "Soft blocked: no"; then
-        yad --title="Bluetooth Off" --text="Bluetooth is currently turned off. Please turn it on first." --button="OK" --center
-        return 1
-    fi
-
+    
     paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VN76')
     if [ -z "$paired_devices" ]; then
         yad --title="Error" --text="No paired devices found with names 'UV-PRO' or 'VN76'." --button="OK" --center

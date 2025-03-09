@@ -43,12 +43,23 @@ disconnect_bluetooth() {
         yad --title="Info" --text="No connected Bluetooth device found." --button="OK" --width=300 --height=100 --center
     fi
 
-    choice=$(yad --title="Bluetooth" --form --text="Would you like to turn off Bluetooth?" \
-        --field="1. Turn off Bluetooth:BTN" --field="2. Leave Bluetooth on:BTN" --button="OK" --width=300 --height=100 --center)
-    case $choice in
-        1*) sudo rfkill block bluetooth ;;
-        2*) ;;
-    esac
+    # Function to check Bluetooth status and prompt user
+    check_bluetooth() {
+        if rfkill list bluetooth | grep -q "Soft blocked: no"; then
+            yad --center --width=350 --height=150 --title="Bluetooth Options" \
+                --button="Leave On & Exit:0" --button="Turn Off & Exit:1" \
+                --text="Bluetooth is currently ON.\nWhat would you like to do?"
+        
+            choice=$?
+        
+            if [ "$choice" -eq 1 ]; then
+                rfkill block bluetooth
+            fi
+
+            exit 0  # Exit after user makes a choice
+        fi
+    }
+
 }
 
 # Main GUI
