@@ -128,7 +128,7 @@ EOL
 sudo chmod +x "$HTC_COMMAND_PATH"
 
 # Create a desktop entry for the GUI script
-MENU_ENTRY_PATH="$HOME/.local/share/applications/htc-connect.desktop"
+MENU_ENTRY_PATH="$HOME/.local/share/applications/ht-connect.desktop"
 echo "Creating menu entry for HTC Connect GUI..."
 mkdir -p "$HOME/.local/share/applications"
 cat <<EOF > "$MENU_ENTRY_PATH"
@@ -136,8 +136,9 @@ cat <<EOF > "$MENU_ENTRY_PATH"
 Name=HT Connect
 Exec=$GUI_SCRIPT_PATH
 Icon=$ICON_PATH
+Path=$INSTALL_DIR
 Type=Application
-Categories=Hamradio;
+Categories=HamRadio;
 Terminal=false
 EOF
 chmod +x "$MENU_ENTRY_PATH"
@@ -150,3 +151,5 @@ echo "  - htc disconnect (Disconnect and release the device)"
 echo "  - htc tcp        (connect ht tnc to tcp port)"
 echo "  - htc kiss       (connect ht tnc to kissattach)"
 echo "  - htc --help     (View available commands)"
+
+echo "Menu item 'ht connect' has been added to the Hamradio category."
