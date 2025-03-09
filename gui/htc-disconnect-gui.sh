@@ -6,18 +6,18 @@ disconnect_bluetooth() {
     if [ -n "$kissattach_pid" ]; then
         sudo kill "$kissattach_pid"
         sleep 2
-        yad --title="Success" --text="Kissattach process stopped." --button="OK" --width=300 --height=100
+        yad --title="Success" --text="Kissattach process stopped." --button="OK" --width=300 --height=100 --center
     else
-        yad --title="Info" --text="No active kissattach connection found." --button="OK" --width=300 --height=100
+        yad --title="Info" --text="No active kissattach connection found." --button="OK" --width=300 --height=100 --center
     fi
 
     socat_pid=$(pgrep -f "socat -d tcp-listen:9100")
     if [ -n "$socat_pid" ]; then
         sudo kill "$socat_pid"
         sleep 2
-        yad --title="Success" --text="Socat process stopped." --button="OK" --width=300 --height=100
+        yad --title="Success" --text="Socat process stopped." --button="OK" --width=300 --height=100 --center
     else
-        yad --title="Info" --text="No active socat process found." --button="OK" --width=300 --height=100
+        yad --title="Info" --text="No active socat process found." --button="OK" --width=300 --height=100 --center
     fi
 
     connected_device=$(bluetoothctl info | grep "Device" | awk '{print $2}')
@@ -26,25 +26,25 @@ disconnect_bluetooth() {
         if [ -n "$rfcomm_device" ]; then
             sudo rfcomm release "$rfcomm_device"
             sleep 1
-            yad --title="Success" --text="RFCOMM binding released." --button="OK" --width=300 --height=100
+            yad --title="Success" --text="RFCOMM binding released." --button="OK" --width=300 --height=100 --center
         else
-            yad --title="Info" --text="No active RFCOMM binding found for $connected_device." --button="OK" --width=300 --height=100
+            yad --title="Info" --text="No active RFCOMM binding found for $connected_device." --button="OK" --width=300 --height=100 --center
         fi
 
         bluetoothctl disconnect "$connected_device"
         sleep 2
 
         if bluetoothctl info "$connected_device" | grep -q "Connected: yes"; then
-            yad --title="Error" --text="The device is still connected." --button="OK" --width=300 --height=100
+            yad --title="Error" --text="The device is still connected." --button="OK" --width=300 --height=100 --center
         else
-            yad --title="Success" --text="The Bluetooth device has been fully disconnected but remains paired." --button="OK" --width=300 --height=100
+            yad --title="Success" --text="The Bluetooth device has been fully disconnected but remains paired." --button="OK" --width=300 --height=100 --center
         fi
     else
-        yad --title="Info" --text="No connected Bluetooth device found." --button="OK" --width=300 --height=100
+        yad --title="Info" --text="No connected Bluetooth device found." --button="OK" --width=300 --height=100 --center
     fi
 
     choice=$(yad --title="Bluetooth" --form --text="Would you like to turn off Bluetooth?" \
-        --field="1. Turn off Bluetooth:BTN" --field="2. Leave Bluetooth on:BTN" --button="OK" --width=300 --height=100)
+        --field="1. Turn off Bluetooth:BTN" --field="2. Leave Bluetooth on:BTN" --button="OK" --width=300 --height=100 --center)
     case $choice in
         1*) sudo rfkill block bluetooth ;;
         2*) ;;
