@@ -7,6 +7,8 @@ DISCONNECT_SCRIPT_PATH="$INSTALL_DIR/disconnect.sh"
 PAIRING_SCRIPT_PATH="$INSTALL_DIR/pairing.sh"
 TCP_CONNECT_SCRIPT_PATH="$INSTALL_DIR/tcp-connect.sh"
 KISS_CONNECT_SCRIPT_PATH="$INSTALL_DIR/kiss-connect.sh"
+GUI_SCRIPT_PATH="$INSTALL_DIR/htc-connect-gui.sh"
+ICON_PATH="$INSTALL_DIR/ht.png"
 
 # Define command names
 HTC_COMMAND="htc"
@@ -124,6 +126,22 @@ EOL
 
 # Ensure the 'htc' script is executable
 sudo chmod +x "$HTC_COMMAND_PATH"
+
+# Create a desktop entry for the GUI script
+MENU_ENTRY_PATH="$HOME/.local/share/applications/htc-connect.desktop"
+echo "Creating menu entry for HTC Connect GUI..."
+mkdir -p "$HOME/.local/share/applications"
+cat <<EOF > "$MENU_ENTRY_PATH"
+[Desktop Entry]
+Name=HTC Connect
+Exec=$GUI_SCRIPT_PATH
+Icon=$ICON_PATH
+Type=Application
+Categories=Utility;Network;
+Terminal=false
+EOF
+chmod +x "$MENU_ENTRY_PATH"
+echo "Menu entry created at $MENU_ENTRY_PATH."
 
 echo "Installation complete! You can now use:"
 echo "  - htc pair       (Pair a Bluetooth device)"
