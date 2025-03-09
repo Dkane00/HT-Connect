@@ -7,7 +7,7 @@ DISCONNECT_SCRIPT_PATH="$INSTALL_DIR/disconnect.sh"
 PAIRING_SCRIPT_PATH="$INSTALL_DIR/pairing.sh"
 TCP_CONNECT_SCRIPT_PATH="$INSTALL_DIR/tcp-connect.sh"
 KISS_CONNECT_SCRIPT_PATH="$INSTALL_DIR/kiss-connect.sh"
-GUI_SCRIPT_PATH="$INSTALL_DIR/htc-connect-gui.sh"
+GUI_SCRIPT_PATH="$INSTALL_DIR/ht-connect.sh"
 ICON_PATH="$INSTALL_DIR/ht.png"
 
 # Define command names
@@ -133,11 +133,11 @@ echo "Creating menu entry for HTC Connect GUI..."
 mkdir -p "$HOME/.local/share/applications"
 cat <<EOF > "$MENU_ENTRY_PATH"
 [Desktop Entry]
-Name=HTC Connect
+Name=HT Connect
 Exec=$GUI_SCRIPT_PATH
 Icon=$ICON_PATH
 Type=Application
-Categories=Utility;Network;
+Categories=Hamradio;
 Terminal=false
 EOF
 chmod +x "$MENU_ENTRY_PATH"
