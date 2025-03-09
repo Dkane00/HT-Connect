@@ -60,6 +60,9 @@ disconnect_bluetooth() {
         fi
     }
 
+    # Run Bluetooth check
+    check_bluetooth
+    
 }
 
 # Main GUI
