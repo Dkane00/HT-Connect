@@ -128,10 +128,10 @@ EOL
 sudo chmod +x "$HTC_COMMAND_PATH"
 
 # Create a desktop entry for the GUI script
-MENU_ENTRY_PATH="$HOME/.local/share/applications/ht-connect.desktop"
+MENU_ENTRY_PATH="/usr/share/applications/ht-connect.desktop"
 echo "Creating menu entry for HTC Connect GUI..."
 mkdir -p "$HOME/.local/share/applications"
-cat <<EOF > "$MENU_ENTRY_PATH"
+cat <<EOF | sudo tee "$MENU_ENTRY_PATH" > /dev/null
 [Desktop Entry]
 Name=HT Connect
 Exec=$GUI_SCRIPT_PATH
@@ -141,7 +141,10 @@ Type=Application
 Categories=HamRadio;
 Terminal=false
 EOF
-chmod +x "$MENU_ENTRY_PATH"
+
+# Set correct permissions
+sudo chmod +x "$MENU_ENTRY_PATH"
+
 echo "Menu entry created at $MENU_ENTRY_PATH."
 
 echo "Installation complete! You can now use:"
