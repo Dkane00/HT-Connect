@@ -39,6 +39,7 @@ check_and_install() {
 # Check and install required dependencies
 check_and_install "socat"
 check_and_install "ax25-tools"
+check_and_install "yad"
 
 # Function to remove an existing command
 remove_existing_command() {
