@@ -47,7 +47,7 @@ disconnect_bluetooth() {
     check_bluetooth() {
         if rfkill list bluetooth | grep -q "Soft blocked: no"; then
             yad --center --width=350 --height=150 --title="Bluetooth Options" \
-                --button="Leave On & Exit:0" --button="Turn Off & Exit:1" \
+                --button="Leave Bluetooth On and Exit:0" --button="Turn Off Bluetooth and Exit:1" \
                 --text="Bluetooth is currently ON.\nWhat would you like to do?"
         
             choice=$?
@@ -62,7 +62,7 @@ disconnect_bluetooth() {
 
     # Run Bluetooth check
     check_bluetooth
-    
+
 }
 
 # Main GUI
