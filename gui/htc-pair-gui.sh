@@ -17,6 +17,7 @@ check_bluetooth() {
         
         if [ "$choice" -eq 0 ]; then
             rfkill unblock bluetooth
+            sleep 5
         else
             yad --center --width=300 --height=100 --title="Exiting" --text="Bluetooth must be on to continue." --button="OK:0"
             exit 1
