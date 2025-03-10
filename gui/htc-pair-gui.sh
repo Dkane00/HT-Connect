@@ -39,43 +39,64 @@ check_bluetooth
         return
     fi
 
-    declare -A device_map
-    index=1
+    # Convert devices list to format for yad dropdown (Device Name first, then MAC Address)
+    DEVICES_LIST=""
     while read -r line; do
         mac=$(echo "$line" | awk '{print $2}')
         name=$(echo "$line" | cut -d ' ' -f3-)
-        device_map[$index]="$mac $name"
-        printf "${GREEN}%d. %s (%s)${NC}\n" "$index" "$name" "$mac"
-        ((index++))
+        DEVICES_LIST+="$name ($mac)!"
     done <<< "$scan_results"
 
-    choice=$(yad --title="Select Device" --form --text="Select the device you want to pair:" \
-        --field="Device:CB" "$(for key in "${!device_map[@]}"; do echo "$key. ${device_map[$key]}"; done)" --button="OK" --center)
-    mac_addr=$(echo "${device_map[$choice]}" | awk '{print $1}')
+    # Remove trailing "!" from the list
+    DEVICES_LIST="${DEVICES_LIST%!}"
+
+    # Show devices in a drop-down menu
+    SELECTED_DEVICE=$(yad --center --width=400 --title="Select Bluetooth Device" --form \
+        --field="Devices:CB" "$DEVICES_LIST" --button="Pair:0" --button="Cancel:1")
+
+    # Extract the selected MAC address
+    mac_addr=$(echo "$SELECTED_DEVICE" | awk -F '[()]' '{print $2}')
+
+    # Exit if no device is selected
+    if [ -z "$mac_addr" ]; then
+        exit 1
+    fi
 
     bluetoothctl pair "$mac_addr"
     bluetoothctl trust "$mac_addr"
 
+    # Extract values safely
+    selected_device="${device_map[$choice]}"
+    device_name=$(echo "$selected_device" | cut -d' ' -f2-)
+    mac_addr=$(echo "$selected_device" | awk '{print $1}')
+
     if bluetoothctl info "$mac_addr" | grep -q "Paired: yes"; then
-        yad --title="Success" --text="Successfully paired with ${device_map[$choice]}." --button="OK" --center
+        yad --title="Success" --text="Successfully paired with $device_name ($mac_addr)." \
+            --button="OK" --center --width=500 --height=200
     else
-        yad --title="Error" --text="Failed to pair with ${device_map[$choice]}." --button="OK" --center
+        yad --title="Error" --text="Failed to pair with $device_name ($mac_addr)." \
+            --button="OK" --center --width=500 --height=200
     fi
 
     bluetoothctl connect "$mac_addr"
     if bluetoothctl info "$mac_addr" | grep -q "Connected: yes"; then
-        yad --title="Success" --text="Successfully connected to ${device_map[$choice]}." --button="OK" --center
+        yad --title="Success" --text="Successfully connected to $device_name ($mac_addr)." \
+            --button="OK" --center --width=500 --height=200
     else
-        yad --title="Error" --text="Failed to connect to ${device_map[$choice]}." --button="OK" --center
+        yad --title="Error" --text="Failed to connect to $device_name ($mac_addr)." \
+            --button="OK" --center --width=500 --height=200
     fi
 
     sleep 5
     bluetoothctl disconnect "$mac_addr"
     if bluetoothctl info "$mac_addr" | grep -q "Connected: no"; then
-        yad --title="Success" --text="Successfully disconnected from ${device_map[$choice]}." --button="OK" --center
+        yad --title="Success" --text="Successfully disconnected from $device_name ($mac_addr)." \
+            --button="OK" --center --width=500 --height=200
     else
-        yad --title="Warning" --text="Device ${device_map[$choice]} may still be connected." --button="OK" --center
+        yad --title="Warning" --text="Device $device_name ($mac_addr) may still be connected." \
+            --button="OK" --center --width=500 --height=200
     fi
+
 
     yad --title="Success" --text="Your HT is now ready to connect." --button="OK" --center
 }
