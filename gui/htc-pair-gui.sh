@@ -2,8 +2,8 @@
 
 # Function to pair a Bluetooth device
 pair_bluetooth() {
-    yad --title="Pairing" --text="Make sure that your HT is in pairing mode if you have never paired the HT with this device." \
-        --field="1. My HT is Ready, Proceed:BTN" --field="2. Exit:BTN" --button="OK" --center
+    yad --title="Pairing" --text="Make sure that your HT is in pairing mode \nSelect OK when ready to pair the HT with this device." \
+        --button="My HT is Ready, Proceed":0 --button="Exit":1 --center --width=500 --height=100
     case $choice in
         1*) ;;
         2*) return ;;
@@ -28,10 +28,15 @@ check_bluetooth() {
 # Run Bluetooth check
 check_bluetooth
     
+    yad --title="Scanning" --text="Scanning for Bluetooth Devices" --text-align=center --center --width=500 --height=100 &
+    YAD_PID=$!
+
     bluetoothctl scan on &
     scan_pid=$!
     sleep 10
     bluetoothctl scan off || sudo pkill -f "bluetoothctl scan on"
+
+    kill $YAD_PID
 
     scan_results=$(bluetoothctl devices)
     if [ -z "$scan_results" ]; then
@@ -51,7 +56,7 @@ check_bluetooth
     DEVICES_LIST="${DEVICES_LIST%!}"
 
     # Show devices in a drop-down menu
-    SELECTED_DEVICE=$(yad --center --width=400 --title="Select Bluetooth Device" --form \
+    SELECTED_DEVICE=$(yad --center --width=500 --height=100 --title="Select Bluetooth Device" --form \
         --field="Devices:CB" "$DEVICES_LIST" --button="Pair:0" --button="Cancel:1")
 
     # Extract the selected MAC address
@@ -62,43 +67,60 @@ check_bluetooth
         exit 1
     fi
 
+    yad --title="Pairing" --text="Pairing $SELECTED_DEVICE" --text-align=center --center --width=500 --height=100 &
+    YAD_PID=$!
+
     bluetoothctl pair "$mac_addr"
     bluetoothctl trust "$mac_addr"
 
-    # Extract values safely
-    selected_device="${device_map[$choice]}"
-    device_name=$(echo "$selected_device" | cut -d' ' -f2-)
-    mac_addr=$(echo "$selected_device" | awk '{print $1}')
+    sleep 2
+    kill $YAD_PID
+
 
     if bluetoothctl info "$mac_addr" | grep -q "Paired: yes"; then
-        yad --title="Success" --text="Successfully paired with $device_name ($mac_addr)." \
-            --button="OK" --center --width=500 --height=200
+        yad --title="Success" --text="Successfully paired with $SELECTED_DEVICE." --text-align=center \
+            --center --width=500 --height=100 &
+        YAD_PID=$!
     else
-        yad --title="Error" --text="Failed to pair with $device_name ($mac_addr)." \
-            --button="OK" --center --width=500 --height=200
+        yad --title="Error" --text="Failed to pair with $SELECTED_DEVICE." --text-align=center \
+            --button="OK" --center --width=500 --height=100
     fi
+    
+    sleep 5
+
+    kill $YAD_PID
 
     bluetoothctl connect "$mac_addr"
     if bluetoothctl info "$mac_addr" | grep -q "Connected: yes"; then
-        yad --title="Success" --text="Successfully connected to $device_name ($mac_addr)." \
-            --button="OK" --center --width=500 --height=200
+        yad --title="Success" --text="Successfully connected to $SELECTED_DEVICE." --text-align=center \
+            --center --width=500 --height=100 &
+        YAD_PID=$!
     else
-        yad --title="Error" --text="Failed to connect to $device_name ($mac_addr)." \
-            --button="OK" --center --width=500 --height=200
+        yad --title="Error" --text="Failed to connect to $SELECTED_DEVICE." --text-align=center \
+            --button="OK" --center --width=500 --height=100
     fi
+
+    sleep 5
+
+    kill $YAD_PID
 
     sleep 5
     bluetoothctl disconnect "$mac_addr"
     if bluetoothctl info "$mac_addr" | grep -q "Connected: no"; then
-        yad --title="Success" --text="Successfully disconnected from $device_name ($mac_addr)." \
-            --button="OK" --center --width=500 --height=200
+        yad --title="Success" --text="Successfully disconnected from $SELECTED_DEVICE." --text-align=center \
+            --center --width=500 --height=100 &
+        YAD_PID=$!
     else
-        yad --title="Warning" --text="Device $device_name ($mac_addr) may still be connected." \
-            --button="OK" --center --width=500 --height=200
+        yad --title="Warning" --text="Device $SELECTED_DEVICE may still be connected." --text-align=center \
+            --button="OK" --center --width=500 --height=100
     fi
 
+    sleep 5
 
-    yad --title="Success" --text="Your HT is now ready to connect." --button="OK" --center
+    kill $YAD_PID
+
+
+    yad --title="Success" --text="Your HT is now ready to connect." --text-align=center --button="OK" --center
 }
 
 # Main GUI

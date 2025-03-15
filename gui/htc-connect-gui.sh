@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Request sudo once and cache credentials
+ensure_sudo() {
+    if ! sudo -v; then
+        yad --title="Permission Error" --text="Failed to get sudo permissions." --button="OK" --center
+        exit 1
+    fi
+}
+
+# Ensure sudo access first
+ensure_sudo
+
+
 # Function to check Bluetooth status and prompt user
 check_bluetooth() {
     if ! rfkill list bluetooth | grep -q "Soft blocked: no"; then
@@ -31,9 +43,17 @@ connect_bluetooth() {
     rfcomm_index=0
     rfcomm_device="/dev/rfcomm$rfcomm_index"
 
+    yad --title="Connecting" --text="Connecting $mac_addr to rfcomm serial port" --text-align=center --center --width=500 --height=100 &
+    YAD_PID=$!
+
+    # Run privileged commands inside a pkexec subshell
+    #pkexec bash <<EOF
     sudo rfcomm release "$rfcomm_index" 2>/dev/null
     sudo nohup rfcomm connect "$rfcomm_index" "$mac_addr" &> nohup_rfcomm.log & disown
+#EOF
     sleep 10
+
+    kill $YAD_PID
 
     if rfcomm | grep -q "rfcomm$rfcomm_index"; then
         yad --title="Success" --text="Device $mac_addr is now connected to $rfcomm_device." --button="OK" --width=300 --height=100 --center
