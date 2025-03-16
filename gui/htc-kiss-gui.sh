@@ -46,11 +46,9 @@ setup_kiss_connection() {
     yad --title="Connecting" --text="Connecting $mac_addr to rfcomm serial port" --text-align=center --center --width=500 --height=100 &
     YAD_PID=$!
     
-    # Run privileged commands inside a pkexec subshell
-    # pkexec bash <<EOF
     sudo rfcomm release "$rfcomm_index" 2>/dev/null
     sudo nohup rfcomm connect "$rfcomm_index" "$mac_addr" &> nohup_rfcomm.log & disown
-# EOF
+
     sleep 10
 
     kill $YAD_PID
