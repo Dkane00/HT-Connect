@@ -35,9 +35,13 @@ When HT Connect is ran you will be prompted for your users sudo password and the
 screen shots:
 
 menu item:
+
+
 ![menu_item](image-2.png)
 
 HT Connect main menu:
+
+
 ![HT_Connect_main](image.png)
 
 ### Terminal Commands
