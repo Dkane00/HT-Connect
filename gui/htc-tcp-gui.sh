@@ -33,9 +33,9 @@ check_bluetooth
 # Function to set up TCP connection
 setup_tcp_connection() {
     
-    paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VN76')
+    paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VR-N76')
     if [ -z "$paired_devices" ]; then
-        yad --title="Error" --text="No paired devices found with names 'UV-PRO' or 'VN76'." --button="OK" --center
+        yad --title="Error" --text="No paired devices found with names 'UV-PRO' or 'VR-N76'." --button="OK" --center
         return 1
     fi
 
