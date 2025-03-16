@@ -26,7 +26,21 @@ cd HT-Connect
 
 ## How to Use
 
-Commands:
+### GUI
+THERE IS NOW A GUI FOR HT CONNECT!!!
+
+The install script above will install a menu item in the menu on your desktop under the catagory HamRadio. Of course the menu item is called HT Connect!
+When HT Connect is ran you will be prompted for your users sudo password and then a Gui menu will be displayed on your screen you can pair and connect your HT in any of the supported ways simply by selecting the thing you want to do from the on screen menu and everything is taken care of for you.  The selections on the menu are pairing, connect to rfcomm, connect to kiss, connect to tcp, and disconnect.  The disconnect will stop any proccesses that were started by the application to connect the radio, disconnect the radio from bluetooth, and even turn bluetooth off if you want it too.
+
+screen shots:
+
+menu item:
+![menu_item](image-2.png)
+
+HT Connect main menu:
+![HT_Connect_main](image.png)
+
+### Terminal Commands
 - htc --help
   - This will give you this list of commands and what they do 
 
@@ -48,8 +62,3 @@ Commands:
 ## **Note**
 **Durring testing after disconnecting the radio from the computer the radio would have to be turned off and back on before reconnecting the radio to the computer using any of the connection types.**
 
-
-## What is to come
-
-- Maybe a GUI
-  - I may try to put all of this in a simple GUI so that it can be even more user friendly and easier for those that may not be too familar with the terminal.
