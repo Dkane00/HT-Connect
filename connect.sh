@@ -37,12 +37,12 @@ if rfkill list bluetooth | grep -q "Soft blocked: yes"; then
 fi
 
 # Search for paired devices matching 'UV-PRO' or 'VN76'
-echo -e "${YELLOW}Searching for paired devices named 'UV-PRO' or 'VR-N76'...${NC}"
-paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VR-N76')
+echo -e "${YELLOW}Searching for paired HT's ...${NC}"
+paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VR-N76|GA-5WB|TH-D74|TH-D75|VR-N7500')
 
 # Check if any devices were found
 if [ -z "$paired_devices" ]; then
-    echo -e "${RED}Error: No paired devices found with names 'UV-PRO' or 'VR-N76'.${NC}"
+    echo -e "${RED}Error: No paired HT's found with names 'UV-PRO','VR-N76','TH-D74','TH-D75','GA-5WB' or 'VR-N7500'.${NC}"
     exit 1
 fi
 

@@ -33,9 +33,9 @@ check_bluetooth
 # Function to set up KISS connection
 setup_kiss_connection() {
 
-    paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VR-N76')
+    paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VR-N76|GA-5WB|TH-D74|TH-D75|VR-N7500')
     if [ -z "$paired_devices" ]; then
-        yad --title="Error" --text="No paired devices found with names 'UV-PRO' or 'VR-N76'." --button="OK" --center
+        yad --title="Error" --text="No paired devices found with names 'UV-PRO','VR-N76','TH-D74','TH-D75','GA-5WB' or 'VR-N7500'." --button="OK" --center
         return 1
     fi
 
