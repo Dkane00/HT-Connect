@@ -35,11 +35,30 @@ setup_tcp_connection() {
     
     paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VR-N76|GA-5WB|TH-D74|TH-D75|VR-N7500')
     if [ -z "$paired_devices" ]; then
-        yad --title="Error" --text="No paired devices found with names 'UV-PRO','VR-N76','TH-D74','TH-D75','GA-5WB' or 'VR-N7500'." --button="OK" --center
+        yad --title="Error" --text="No paired devices found with names 'UV-PRO', 'VR-N76', 'TH-D74', 'TH-D75', 'GA-5WB', or 'VR-N7500'." \
+            --button="OK" --width=300 --height=100 --center
         return 1
     fi
 
-    mac_addr=$(echo "$paired_devices" | awk '{print $2}' | head -n 1)
+    # Convert devices list to format for yad dropdown (Device Name first, then MAC Address)
+    DEVICES_LIST=""
+    while read -r line; do
+        mac=$(echo "$line" | awk '{print $2}')
+        name=$(echo "$line" | cut -d ' ' -f3-)
+        DEVICES_LIST+="$name ($mac)!"
+    done <<< "$paired_devices"
+
+    # Remove trailing "!" from the list
+    DEVICES_LIST="${DEVICES_LIST%!}"
+
+    # Show devices in a drop-down menu
+    SELECTED_DEVICE=$(yad --center --width=500 --height=100 --title="Select Bluetooth Device" --form \
+        --field="Devices:CB" "$DEVICES_LIST" --button="Connect:0" --button="Cancel:1")
+    
+    # Extract the selected MAC address
+    mac_addr=$(echo "$SELECTED_DEVICE" | awk -F '[()]' '{print $2}')
+
+    
     rfcomm_index=0
     rfcomm_device="/dev/rfcomm$rfcomm_index"
 

@@ -17,12 +17,12 @@ disconnect_bluetooth() {
     if [ -n "$kissattach_pid" ]; then
         sudo kill "$kissattach_pid"
         sleep 2
-        yad --title="Success" --text="Kissattach process stopped." --button="OK" --width=300 --height=100 --center &
+        yad --title="Success" --text="Kissattach process stopped." --width=300 --height=100 --center &
         YAD_PID=$!
         sleep 5
         kill $YAD_PID
     else
-        yad --title="Info" --text="No active kissattach connection found." --button="OK" --width=300 --height=100 --center &
+        yad --title="Info" --text="No active kissattach connection found." --width=300 --height=100 --center &
         YAD_PID=$!
         sleep 5
         kill $YAD_PID
@@ -32,12 +32,12 @@ disconnect_bluetooth() {
     if [ -n "$socat_pid" ]; then
         sudo kill "$socat_pid"
         sleep 2
-        yad --title="Success" --text="Socat process stopped." --button="OK" --width=300 --height=100 --center &
+        yad --title="Success" --text="Socat process stopped." --width=300 --height=100 --center &
         YAD_PID=$!
         sleep 5
         kill $YAD_PID
     else
-        yad --title="Info" --text="No active socat process found." --button="OK" --width=300 --height=100 --center &
+        yad --title="Info" --text="No active socat process found." --width=300 --height=100 --center &
         YAD_PID=$!
         sleep 5
         kill $YAD_PID
@@ -49,12 +49,12 @@ disconnect_bluetooth() {
         if [ -n "$rfcomm_device" ]; then
             sudo rfcomm release "$rfcomm_device"
             sleep 2
-            yad --title="Success" --text="RFCOMM binding released." --button="OK" --width=300 --height=100 --center &
+            yad --title="Success" --text="RFCOMM binding released." --width=300 --height=100 --center &
             YAD_PID=$!
             sleep 5
             kill $YAD_PID
         else
-            yad --title="Info" --text="No active RFCOMM binding found for $connected_device." --button="OK" --width=300 --height=100 --center &
+            yad --title="Info" --text="No active RFCOMM binding found for $connected_device." --width=300 --height=100 --center &
             YAD_PID=$!
             sleep 5
             kill $YAD_PID
@@ -64,18 +64,18 @@ disconnect_bluetooth() {
         sleep 2
 
         if bluetoothctl info "$connected_device" | grep -q "Connected: yes"; then
-            yad --title="Error" --text="The device is still connected." --button="OK" --width=300 --height=100 --center &
+            yad --title="Error" --text="The device is still connected." --width=300 --height=100 --center &
             YAD_PID=$!
             sleep 5
             kill $YAD_PID
         else
-            yad --title="Success" --text="The Bluetooth device has been fully disconnected but remains paired." --button="OK" --width=300 --height=100 --center &
+            yad --title="Success" --text="The Bluetooth device has been fully disconnected but remains paired." --width=300 --height=100 --center &
             YAD_PID=$!
             sleep 5
             kill $YAD_PID
         fi
     else
-        yad --title="Info" --text="No connected Bluetooth device found." --button="OK" --width=300 --height=100 --center &
+        yad --title="Info" --text="No connected Bluetooth device found." --width=300 --height=100 --center &
         YAD_PID=$!
         sleep 5
         kill $YAD_PID
