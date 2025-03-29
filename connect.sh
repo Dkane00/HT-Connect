@@ -36,7 +36,7 @@ if rfkill list bluetooth | grep -q "Soft blocked: yes"; then
     esac
 fi
 
-# Search for paired devices matching 'UV-PRO' or 'VN76'
+# Search for paired devices matching the criteria
 echo -e "${YELLOW}Searching for paired HT's ...${NC}"
 paired_devices=$(bluetoothctl paired-devices | grep -E 'UV-PRO|VR-N76|GA-5WB|TH-D74|TH-D75|VR-N7500')
 
@@ -46,11 +46,25 @@ if [ -z "$paired_devices" ]; then
     exit 1
 fi
 
-# Extract the MAC address of the first matching device
-mac_addr=$(echo "$paired_devices" | awk '{print $2}' | head -n 1)
+# Convert paired devices into a menu selection format
+device_list=()
+while IFS= read -r line; do
+    mac=$(echo "$line" | awk '{print $2}')
+    name=$(echo "$line" | cut -d ' ' -f3-)
+    device_list+=("$mac - $name")
+done <<< "$paired_devices"
 
-# Display the selected device
-echo -e "${GREEN}Found device: $(echo "$paired_devices" | head -n 1)${NC}"
+# Display a menu to select a device
+echo -e "${YELLOW}Select a device to connect:${NC}"
+select selection in "${device_list[@]}"; do
+    if [[ -n "$selection" ]]; then
+        mac_addr=$(echo "$selection" | awk '{print $1}')
+        echo -e "${GREEN}You selected: $selection${NC}"
+        break
+    else
+        echo -e "${RED}Invalid selection, please try again.${NC}"
+    fi
+done
 
 # RFCOMM device index
 rfcomm_index=0
